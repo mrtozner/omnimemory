@@ -1,0 +1,89 @@
+[
+  {
+    "id": "conv_001",
+    "title": "Multi-turn fact retention",
+    "turns": [
+      {
+        "role": "user",
+        "content": "My name is Sarah and I work at Anthropic."
+      },
+      {
+        "role": "assistant",
+        "content": "Nice to meet you, Sarah! It's great to hear you work at Anthropic."
+      },
+      {
+        "role": "user",
+        "content": "I'm working on Claude improvements."
+      },
+      {
+        "role": "assistant",
+        "content": "That sounds exciting! What aspects of Claude are you focusing on?"
+      },
+      {
+        "role": "user",
+        "content": "What's my name again?"
+      }
+    ],
+    "expected_memory": ["name_sarah", "work_anthropic", "project_claude"],
+    "query": "What's my name again?",
+    "expected_response_contains": ["Sarah"]
+  },
+  {
+    "id": "conv_002",
+    "title": "Temporal event ordering",
+    "turns": [
+      {
+        "role": "user",
+        "content": "Yesterday I went to the store."
+      },
+      {
+        "role": "assistant",
+        "content": "What did you get at the store?"
+      },
+      {
+        "role": "user",
+        "content": "Today I'm cooking with those ingredients."
+      },
+      {
+        "role": "assistant",
+        "content": "What are you making?"
+      },
+      {
+        "role": "user",
+        "content": "Tomorrow I'm having friends over for dinner."
+      }
+    ],
+    "expected_memory": ["event_store_yesterday", "event_cooking_today", "event_dinner_tomorrow"],
+    "query": "When am I having friends over?",
+    "expected_response_contains": ["tomorrow", "dinner"]
+  },
+  {
+    "id": "conv_003",
+    "title": "Entity tracking",
+    "turns": [
+      {
+        "role": "user",
+        "content": "I have a dog named Max."
+      },
+      {
+        "role": "assistant",
+        "content": "That's nice! What breed is Max?"
+      },
+      {
+        "role": "user",
+        "content": "He's a golden retriever. Max loves to swim."
+      },
+      {
+        "role": "assistant",
+        "content": "Golden retrievers are wonderful swimmers!"
+      },
+      {
+        "role": "user",
+        "content": "Tell me about my dog."
+      }
+    ],
+    "expected_memory": ["pet_dog_max", "breed_golden_retriever", "activity_swimming"],
+    "query": "Tell me about my dog.",
+    "expected_response_contains": ["Max", "golden retriever", "swim"]
+  }
+]

@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+ENV/
+env/
+
+# Model files (too large for git)
+*.safetensors
+*.bin
+*.onnx
+*.pt
+*.pth
+*.h5
+*.pkl
+*.joblib
+models/*.safetensors
+models/*.bin
+models/*.onnx
+!**/models/README.md
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Environment
+.env
+.env.local
+*.env
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Rust
+target/
+Cargo.lock
+
+# Docker
+docker/postgres/data/
+
+# Secrets
+*.pem
+*.key
+credentials.json

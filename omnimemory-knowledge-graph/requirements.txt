@@ -1,0 +1,6 @@
+# KnowledgeGraphService Dependencies
+# PostgreSQL async driver
+asyncpg>=0.29.0
+
+# Optional: For enhanced logging
+colorlog>=6.8.0

@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo build:*)",
+      "Bash(cargo check:*)",
+      "Bash(claude-task:*)",
+      "Bash(grep:*)",
+      "Bash(1)",
+      "Bash(./target/release/omnimemory-cli:*)",
+      "Bash(cargo test:*)",
+      "Bash(tee:*)",
+      "Bash(cargo clippy:*)",
+      "Bash(python3:*)",
+      "Bash(echo:*)",
+      "Bash(xargs:*)",
+      "Bash(cargo fix:*)",
+      "Bash(./target/debug/omnimemory-cli)",
+      "Bash(./target/debug/omnimemory-cli:*)",
+      "Bash(cargo run:*)",
+      "Bash(/Users/mertozoner/Documents/claude-idea-discussion/omni-memory/omnimemory-cli/target/release/omnimemory-cli:*)",
+      "Bash(timeout:*)",
+      "Bash(cargo install:*)",
+      "Bash(omni --version:*)",
+      "Bash(omni --help:*)",
+      "Bash(omni suggest:*)",
+      "Bash(omni init --help:*)",
+      "Bash(omni:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch",
+      "Bash(/Users/mertozoner/Documents/claude-idea-discussion/omni-memory/omnimemory_stop.sh)",
+      "Bash(kill:*)",
+      "Bash(/dev/null)",
+      "Bash(/Users/mertozoner/Documents/claude-idea-discussion/omni-memory/omnimemory_launcher.sh:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

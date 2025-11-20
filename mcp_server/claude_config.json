@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "omnimemory": {
+      "command": "/Users/mertozoner/Documents/claude-idea-discussion/omni-memory/mcp_server/.venv/bin/python",
+      "args": [
+        "/Users/mertozoner/Documents/claude-idea-discussion/omni-memory/mcp_server/omnimemory_mcp.py"
+      ],
+      "env": {
+        "OMNIMEMORY_CONNECTION_MODE": "local",
+        "OMNIMEMORY_DEPLOYMENT_MODE": "personal"
+      }
+    }
+  }
+}

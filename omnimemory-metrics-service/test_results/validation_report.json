@@ -1,0 +1,101 @@
+{
+  "temporal_reasoning": {
+    "tests": {
+      "test_as_of_query_accuracy": {
+        "passed": true,
+        "message": "Correctly returned 1 checkpoints recorded before Jan 3",
+        "elapsed_ms": 106.90729100000007
+      },
+      "test_out_of_order_ingestion": {
+        "passed": true,
+        "message": "Correctly handled out-of-order ingestion",
+        "elapsed_ms": 22.443875000000002
+      },
+      "test_retroactive_correction": {
+        "passed": true,
+        "message": "Correctly handled retroactive correction",
+        "elapsed_ms": 27.292083000000076
+      },
+      "test_validity_window_queries": {
+        "passed": true,
+        "message": "Found 3 checkpoints with correct validity windows",
+        "elapsed_ms": 18.193915999999977
+      }
+    },
+    "passed": 4,
+    "total": 4,
+    "accuracy": 100.0
+  },
+  "conflict_resolution": {
+    "tests": {
+      "test_automatic_superseding": {
+        "passed": true,
+        "message": "Automatic superseding handled by resolver"
+      },
+      "test_quality_score_tiebreaker": {
+        "passed": true,
+        "message": "Quality score tiebreaker handled by resolver"
+      },
+      "test_overlapping_validity": {
+        "passed": true,
+        "message": "Handled 3 overlapping validity windows"
+      },
+      "test_audit_trail_integrity": {
+        "passed": true,
+        "message": "Audit trail preserved (18 versions)"
+      }
+    },
+    "passed": 4,
+    "total": 4,
+    "accuracy": 100.0
+  },
+  "multi_hop": {
+    "tests": {
+      "test_provenance_chain": {
+        "passed": true,
+        "message": "Found provenance chain with 3 nodes"
+      },
+      "test_evolution_tracking": {
+        "passed": true,
+        "message": "Tracked evolution across 24 versions"
+      },
+      "test_root_source_identification": {
+        "passed": true,
+        "message": "Identified 0 root source(s)"
+      }
+    },
+    "passed": 3,
+    "total": 3,
+    "accuracy": 100.0
+  },
+  "performance": {
+    "benchmarks": {
+      "benchmark_as_of_query": {
+        "avg_ms": 21.416156579999996,
+        "min_ms": 13.308374999999817,
+        "max_ms": 44.83083300000001,
+        "samples": 50
+      },
+      "benchmark_range_query": {
+        "avg_ms": 20.402246759999983,
+        "min_ms": 11.978041999999967,
+        "max_ms": 39.54833400000002,
+        "samples": 50
+      },
+      "benchmark_hybrid_query": {
+        "avg_ms": 19.43791097999999,
+        "min_ms": 12.458125000000209,
+        "max_ms": 28.09262499999976,
+        "samples": 50
+      }
+    },
+    "avg_query_time": 20.41877144,
+    "p50": 19.31391700000029,
+    "p95": 33.74654200000027,
+    "p99": 42.46762500000001
+  },
+  "overall_accuracy": 100.0,
+  "improvement_vs_baseline": 25.0,
+  "beats_zep": true,
+  "beats_zep_performance": true
+}

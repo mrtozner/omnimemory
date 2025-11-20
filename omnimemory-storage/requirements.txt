@@ -1,0 +1,32 @@
+# Core requirements for the storage layer
+sqlite3  # Built into Python, but explicitly listed for clarity
+
+# PostgreSQL support
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.0
+
+# Vector search
+faiss-cpu>=1.8.0
+
+# Numerical computing
+numpy>=1.21.0
+
+# Optional dependencies for different embedding models
+# Uncomment as needed for your use case:
+
+# Sentence Transformers for local embeddings
+# sentence-transformers>=2.2.0
+
+# OpenAI embeddings (requires API key)
+# openai>=1.0.0
+
+# Hugging Face transformers (for local models)
+# torch>=1.9.0
+# transformers>=4.20.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+black>=22.0.0
+flake8>=4.0.0
+mypy>=0.910

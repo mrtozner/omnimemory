@@ -1,0 +1,26 @@
+[
+  {
+    "id": "code_001",
+    "title": "Python function memory",
+    "code": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)",
+    "context": "User asked about implementing fibonacci recursively",
+    "query": "What was that fibonacci function I wrote?",
+    "expected_retrieval": ["code_fibonacci_recursive"]
+  },
+  {
+    "id": "code_002",
+    "title": "API endpoint memory",
+    "code": "@app.post('/api/users')\nasync def create_user(user: UserCreate):\n    return await db.users.insert(user)",
+    "context": "User created a FastAPI endpoint for user creation",
+    "query": "How do I create users in my API?",
+    "expected_retrieval": ["code_api_create_user"]
+  },
+  {
+    "id": "code_003",
+    "title": "Bug fix memory",
+    "code": "# Fixed: Changed > to >= to include boundary condition\nif value >= threshold:",
+    "context": "User fixed off-by-one error in threshold comparison",
+    "query": "What was that bug I fixed earlier?",
+    "expected_retrieval": ["code_bugfix_threshold"]
+  }
+]

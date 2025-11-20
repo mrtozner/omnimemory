@@ -1,0 +1,78 @@
+# OmniMemory Phase 2 - Docker Compose Infrastructure
+# Qdrant (Vector DB) + Redis (Cache) + PostgreSQL (Graph/Metadata)
+
+version: '3.8'
+
+services:
+  # Qdrant - Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: omnimemory-qdrant
+    ports:
+      - "6333:6333"  # HTTP API
+      - "6334:6334"  # gRPC API
+    volumes:
+      - ./docker/qdrant/storage:/qdrant/storage
+      - ./docker/qdrant/snapshots:/qdrant/snapshots
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - omnimemory-network
+    restart: unless-stopped
+
+  # Redis - Distributed Cache
+  redis:
+    image: redis:7-alpine
+    container_name: omnimemory-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/redis/data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - omnimemory-network
+    restart: unless-stopped
+
+  # PostgreSQL - Metadata & Knowledge Graph
+  postgres:
+    image: postgres:16-alpine
+    container_name: omnimemory-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: omnimemory
+      POSTGRES_USER: omnimemory
+      POSTGRES_PASSWORD: omnimemory_dev_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./docker/postgres/data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omnimemory"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - omnimemory-network
+    restart: unless-stopped
+
+networks:
+  omnimemory-network:
+    driver: bridge
+
+volumes:
+  qdrant-storage:
+  redis-data:
+  postgres-data:

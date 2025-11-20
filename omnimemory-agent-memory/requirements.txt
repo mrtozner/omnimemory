@@ -1,0 +1,14 @@
+# Core dependencies
+httpx>=0.24.0
+asyncio>=3.4.3
+sqlite3  # Built-in
+
+# Already available in parent project
+# fastapi>=0.100.0
+# uvicorn>=0.23.0
+# python-dotenv>=1.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0

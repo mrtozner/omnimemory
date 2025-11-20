@@ -1,0 +1,12 @@
+{
+  "omnimemory": {
+    "command": "python3",
+    "args": [
+      "/path/to/mcp_server/server.py"
+    ],
+    "env": {
+      "PYTHONPATH": "/path/to/mcp_server",
+      "OMNIMEMORY_DATA_DIR": "~/.local/share/omnimemory"
+    }
+  }
+}

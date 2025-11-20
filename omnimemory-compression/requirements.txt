@@ -1,0 +1,49 @@
+# VisionDrop Compression Service Dependencies
+# Core dependencies required for operation
+
+# Base
+numpy>=1.24.0
+httpx>=0.24.0
+
+# FastAPI server
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+python-multipart>=0.0.6
+
+# Core tokenizers (offline-first)
+transformers>=4.35.0
+tokenizers>=0.15.0
+sentencepiece>=0.1.99
+tiktoken>=0.5.0
+
+# Three-tier caching
+cachetools>=5.3.0
+diskcache>=5.6.0
+pybloom-live>=4.0.0
+blake3>=0.3.0
+datasketch>=1.6.0
+
+# FastCDC for content-defined chunking
+fastcdc>=1.6.0
+
+# Validation
+rouge-score>=0.1.2
+
+# Optional: API clients for online tokenization
+# Uncomment as needed:
+# anthropic>=0.34.0
+# google-generativeai>=0.3.0
+# boto3>=1.34.0
+# redis>=5.0.0
+
+# Optional: Advanced validation
+# bert-score>=0.3.13
+# sacrebleu>=2.4.0
+
+# Optional: Enterprise features
+# vllm>=0.4.0
+
+# CLI commands
+click>=8.1.0
+tabulate>=0.9.0

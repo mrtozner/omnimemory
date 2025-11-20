@@ -1,0 +1,42 @@
+# OmniMemory CLI Configuration
+
+[output]
+# Default output format for commands
+# Options: human, json, plain, table
+format = "human"
+
+[suggestion]
+# Maximum number of AI suggestions to display
+max_results = 5
+
+# Minimum confidence threshold (0.0 - 1.0)
+min_confidence = 0.7
+
+[context]
+# Maximum context size for AI operations
+max_size = "10KB"
+
+# Context types to include by default
+include_types = ["recent_commands", "working_directory", "git_status", "environment"]
+
+[daemon]
+# Enable OmniMemory daemon
+enabled = false
+
+# Daemon port
+port = 4000
+
+[tools]
+# Enable Docker-related tools and suggestions
+docker.enabled = true
+
+# Enable Git-related tools and suggestions
+git.enabled = true
+
+# Enable Rust/Cargo-related tools
+rust.enabled = true
+
+[mcp]
+# MCP server integration
+auto_start = true
+tools_enabled = true

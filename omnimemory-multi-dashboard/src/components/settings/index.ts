@@ -1,0 +1,1 @@
+export { PerformanceSettings } from './PerformanceSettings';

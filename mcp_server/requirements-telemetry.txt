@@ -1,0 +1,20 @@
+# OpenTelemetry Dependencies for SigNoz Integration
+# Install with: pip install -r requirements-telemetry.txt
+
+# Core OpenTelemetry
+opentelemetry-api==1.22.0
+opentelemetry-sdk==1.22.0
+
+# OTLP Exporters (for SigNoz)
+opentelemetry-exporter-otlp-proto-grpc==1.22.0
+opentelemetry-exporter-otlp-proto-http==1.22.0
+
+# Automatic Instrumentation
+opentelemetry-instrumentation-fastapi==0.43b0
+opentelemetry-instrumentation-httpx==0.43b0
+opentelemetry-instrumentation-logging==0.43b0
+
+# Optional: Additional instrumentations (uncomment if needed)
+# opentelemetry-instrumentation-redis==0.43b0
+# opentelemetry-instrumentation-psycopg2==0.43b0
+# opentelemetry-instrumentation-sqlite3==0.43b0

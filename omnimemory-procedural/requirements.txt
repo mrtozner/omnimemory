@@ -1,0 +1,15 @@
+# Core dependencies for procedural memory engine
+networkx>=3.0
+numpy>=1.24.0
+
+# FastAPI REST API server
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.0.0
+
+# Async HTTP client for embedding service
+httpx>=0.25.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
