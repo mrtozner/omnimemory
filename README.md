@@ -2,6 +2,19 @@
 
 A modular collection of microservices for intelligent context management in AI development tools. Provides embedding generation, compression, caching, and memory services that can be used independently or together.
 
+## ⚠️ Setup Complexity
+
+**OmniMemory consists of 13 independent microservices** that must be started individually.
+
+- ✅ Each service is production-ready and tested
+- ⚠️ No unified launcher (manual setup required)
+- ⚠️ Services must be started in correct order
+- ℹ️ Recommended for advanced users
+
+**See [QUICK_START.md](QUICK_START.md) for step-by-step setup.**
+
+For integrated deployment, see [Omn1-ACE](https://github.com/mrtozner/omn1-ace) (early stage).
+
 ## Overview
 
 OmniMemory is designed to optimize context delivery for AI-powered development workflows. Each service handles a specific aspect of context management and can be deployed independently or as part of an integrated system.
@@ -113,6 +126,56 @@ Web-based monitoring dashboard.
 Evaluation and benchmarking tools.
 - Features: Quality assessment, performance benchmarks
 - [Documentation](omnimemory-evaluation/README.md)
+
+## ⚠️ Model Compatibility & Context Handling
+
+### Embedding Model Consistency
+
+**Critical**: All team members must use the **same embedding model** for shared caching to work correctly.
+
+- **Default**: `sentence-transformers/all-MiniLM-L6-v2` (768 dimensions)
+- **Alternative**: `all-mpnet-base-v2` (better quality, slower)
+- **Enterprise**: OpenAI `text-embedding-3-small` (API key required)
+
+**Why this matters**:
+- Different embedding models produce different vector representations
+- Vectors from different models are incompatible
+- Team L2 cache requires consistent embeddings across users
+
+### Context Window Differences
+
+Services need to know target model limits:
+
+| Model | Context Window | Configuration |
+|-------|---------------|---------------|
+| Claude 3.5 Sonnet | 200K tokens | `CLAUDE_CONTEXT_WINDOW=200000` |
+| GPT-4 Turbo | 128K tokens | `GPT_CONTEXT_WINDOW=128000` |
+| Gemini 1.5 Pro | 1M tokens | `GEMINI_CONTEXT_WINDOW=1000000` |
+| GPT-3.5 Turbo | 16K tokens | `GPT_CONTEXT_WINDOW=16000` |
+
+Set in your `.env`:
+```bash
+TARGET_MODEL=claude
+CONTEXT_WINDOW_SIZE=200000
+```
+
+### Known Issues
+
+1. **Compression Quality**: Compression optimized for Claude may not work as well for GPT-4
+2. **Team Cache Mismatches**: If users have different embedding models, cache sharing fails silently
+3. **Memory Patterns**: Workflow predictions trained on Claude usage may not apply to GPT-4 workflows
+
+### Recommendations
+
+**For Teams**:
+- Standardize on one embedding model (document in team wiki)
+- Use same target model across team
+- Set up separate caches per model if needed
+
+**For Individual Users**:
+- Stick with default embedding model unless you have specific needs
+- Configure context window for your primary model
+- Test compression quality with your specific model
 
 ## Quick Start
 
