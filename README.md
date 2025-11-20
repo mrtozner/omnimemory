@@ -21,6 +21,8 @@
 
 13 production-ready microservices that prevent wasteful API calls through semantic search, smart caching, and team learning—saving 85% on AI development costs.
 
+**One-command setup**: `omni init --tool claude` automatically configures your AI tool!
+
 </div>
 
 ---
@@ -309,6 +311,42 @@ python -m src.cache_server
 ```
 
 **[📖 Detailed Setup Instructions →](QUICK_START.md)**
+
+---
+
+## 🎯 Automatic AI Tool Configuration
+
+**NEW**: Use `omni init` to automatically configure your AI tools with OmniMemory!
+
+### Quick Setup (One Command)
+
+```bash
+# Install the init CLI
+cd omnimemory-init-cli
+pip install -e .
+
+# Auto-configure your AI tool
+omni init --tool claude    # For Claude Code
+omni init --tool cursor    # For Cursor
+omni init --tool all       # Configure all detected tools
+```
+
+**What it does:**
+1. ✅ Detects installed AI tools (Claude Code, Cursor, VSCode, Windsurf, etc.)
+2. ✅ Configures MCP servers with correct tool IDs
+3. ✅ **Auto-injects custom prompts** that instruct AI to use OmniMemory tools
+4. ✅ Creates backup of existing configs before modifying
+
+**Supported Tools:**
+- Claude Code (`~/.claude/CLAUDE.md`)
+- Cursor (`~/.cursorrules`)
+- Windsurf (`~/.windsurfrules`)
+- VS Code + Cline/Continue/Aider
+- Gemini Code Assist, Codex, Cody
+
+**Result**: Your AI tool will automatically use OmniMemory's compressed reading and semantic search instead of sending 50 files to expensive APIs.
+
+**[📖 Full Init CLI Documentation →](omnimemory-init-cli/README.md)**
 
 ---
 

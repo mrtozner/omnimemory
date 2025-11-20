@@ -1,0 +1,295 @@
+"""Codex CLI configurator for OMN1 MCP integration."""
+
+import platform
+from pathlib import Path
+from datetime import datetime
+from typing import Optional
+
+
+class CodexConfigurator:
+    """Configure OpenAI Codex CLI for OMN1 MCP server."""
+
+    def __init__(self, venv_python: str, mcp_script: str):
+        """
+        Initialize configurator with MCP server paths.
+
+        Args:
+            venv_python: Absolute path to venv python executable
+            mcp_script: Absolute path to MCP server script
+        """
+        self.venv_python = venv_python
+        self.mcp_script = mcp_script
+
+    def get_config_path(self) -> Path:
+        """
+        Get Codex CLI config path.
+
+        Returns:
+            Path to Codex config file
+        """
+        # Same path for all platforms
+        return Path.home() / ".codex" / "config.toml"
+
+    def get_omnimemory_prompt(self) -> str:
+        """
+        Get the OmniMemory usage prompt to embed in Codex config.
+
+        Returns:
+            String containing the complete prompt text
+        """
+        return """
+# 🚨 OMNIMEMORY ENFORCEMENT - Read This First
+
+## CRITICAL RULE: Always Try OmniMemory First
+
+You have OmniMemory MCP tools that save 90%+ tokens. **Not using them wastes user's money.**
+
+### MANDATORY Tool Usage Order:
+
+**For ANY file read**:
+1. ✅ FIRST: Try `mcp__omnimemory__read("file.py|overview")`
+2. ❌ NEVER: Use standard Read without trying OmniMemory first
+3. ✅ FALLBACK: Only use Read if OmniMemory errors
+
+**For ANY code search**:
+1. ✅ FIRST: Try `mcp__omnimemory__search("query|tri_index")`
+2. ❌ NEVER: Use Grep without trying OmniMemory first
+3. ✅ FALLBACK: Only use Grep if OmniMemory errors
+
+**For ANY codebase exploration**:
+1. ✅ FIRST: Try `mcp__omnimemory__search("query|tri_index|limit:5")`
+2. ❌ NEVER: Use Task/Grep directly
+3. ✅ FALLBACK: Only if OmniMemory unavailable
+
+---
+
+## Why This Matters (User Cost Impact)
+
+**Without OmniMemory** (if you skip it):
+- Reading 10 files: 50,000 tokens = $0.75
+- User pays full price
+
+**With OmniMemory** (if you use it):
+- Reading 10 files: 3,000 tokens = $0.045
+- User saves $0.705 (94%)
+
+**Your responsibility**: Don't waste user's money by forgetting to use OmniMemory.
+
+---
+
+## Available MCP Tools (Delimiter-Based Syntax):
+
+1. **mcp__omnimemory__read(input_string)** - Unified reading
+   Format: `"file_path|mode|options"`
+
+   Examples:
+   - `mcp__omnimemory__read("file.py")` → Full compressed (90% savings)
+   - `mcp__omnimemory__read("file.py|overview")` → Structure only (98% savings)
+   - `mcp__omnimemory__read("file.py|symbol:Settings")` → Specific symbol (99% savings)
+   - `mcp__omnimemory__read("file.py|references:func")` → Find usages
+
+   Options: `|details`, `|nocompress`, `|lang:python`
+
+2. **mcp__omnimemory__search(input_string)** - Unified search
+   Format: `"query|mode|options"`
+
+   Examples:
+   - `mcp__omnimemory__search("authentication")` → Semantic search (default)
+   - `mcp__omnimemory__search("authentication|tri_index")` → Hybrid search (BEST)
+   - `mcp__omnimemory__search("auth|tri_index|limit:10")` → With limit
+   - `mcp__omnimemory__search("Settings|references:SettingsManager")` → Find references
+
+   Options: `|limit:N`, `|minrel:0.8`, `|file:path`
+
+## MANDATORY Usage Patterns:
+
+### When user asks about code:
+INSTEAD OF:
+- grep "pattern" → Read 50 files → 100K tokens
+
+USE:
+- mcp__omnimemory__search("query|tri_index") → Read 3 files → 2K tokens
+
+### When reading files:
+INSTEAD OF:
+- Read tool → Full file → 10K tokens
+
+USE:
+- mcp__omnimemory__read("file.py") → Compressed → 1K tokens (default mode)
+- mcp__omnimemory__read("file.py|overview") → Structure only → 200 tokens
+
+### When exploring codebase:
+INSTEAD OF:
+- Grep → Find all matches → Read everything
+
+USE:
+- mcp__omnimemory__search("query|tri_index|limit:5") → Top 5 relevant only
+
+## Token Savings Reporting:
+
+After EVERY operation, report:
+"🔍 Used OmniMemory: [tool name]
+📊 Files: [X relevant / Y total found]
+📉 Tokens saved: ~[amount] ([percentage]%)
+💰 Cost saved: $[amount]"
+
+## Example Usage:
+
+User: "How does authentication work?"
+
+You MUST:
+1. mcp__omnimemory__search("authentication implementation|tri_index")
+2. Get top 3 files
+3. mcp__omnimemory__read(each_file) - compressed automatically
+4. Report: "Used tri_index search, found 3/47 relevant files, saved ~45K tokens (95%), saved $0.68"
+
+## Dashboard:
+- View metrics: http://localhost:8004
+- All operations tracked silently
+- No token cost for metrics
+"""
+
+    def configure(self) -> Path:
+        """
+        Configure Codex CLI with MCP server and embed OmniMemory prompts.
+
+        Returns:
+            Path to config file that was modified
+        """
+        config_path = self.get_config_path()
+
+        # Read existing config or create empty string
+        if config_path.exists():
+            try:
+                with open(config_path, "r") as f:
+                    existing_config = f.read()
+
+                # Create backup
+                timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+                backup_path = config_path.with_suffix(f".toml.backup-{timestamp}")
+                backup_path.write_text(existing_config, encoding="utf-8")
+                print(f"✅ Created backup: {backup_path}")
+            except Exception as e:
+                print(f"Warning: Could not create backup: {e}")
+                existing_config = ""
+        else:
+            existing_config = ""
+
+        # Check if omn1 section already exists and remove it
+        if "[mcp_servers.omn1]" in existing_config:
+            existing_config = self._remove_omn1_section(existing_config)
+
+        # Check if [prompt] section already exists and remove it
+        if "[prompt]" in existing_config:
+            existing_config = self._remove_prompt_section(existing_config)
+
+        # Add OMN1 MCP server configuration
+        omn1_config = f"""
+[mcp_servers.omn1]
+command = "{self.venv_python}"
+args = ["{self.mcp_script}"]
+startup_timeout_sec = 10.0
+tool_timeout_sec = 60.0
+
+[mcp_servers.omn1.env]
+OMNIMEMORY_TOOL_ID = "codex"  # Identifies which tool is using OmniMemory
+"""
+
+        # Add OmniMemory prompt in [prompt] section
+        # Escape the prompt text for TOML multi-line string
+        prompt_text = self.get_omnimemory_prompt()
+        prompt_config = f"""
+[prompt]
+system = '''
+{prompt_text}
+'''
+"""
+
+        # Combine configs
+        new_config = existing_config.strip() + omn1_config + prompt_config
+
+        # Write config
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(config_path, "w") as f:
+            f.write(new_config.strip() + "\n")
+
+        print(f"✅ Embedded OmniMemory prompts in {config_path}")
+        return config_path
+
+    def _remove_omn1_section(self, config_text: str) -> str:
+        """
+        Remove existing [mcp_servers.omn1] section from config.
+
+        Args:
+            config_text: Current config file content
+
+        Returns:
+            Config text with omn1 section removed
+        """
+        lines = config_text.split("\n")
+        filtered_lines = []
+        in_omn1_section = False
+
+        for line in lines:
+            stripped = line.strip()
+
+            # Check if we're entering the omn1 section
+            if stripped == "[mcp_servers.omn1]":
+                in_omn1_section = True
+                continue
+
+            # Check if we're entering a different section (stop skipping)
+            if in_omn1_section and stripped.startswith("["):
+                in_omn1_section = False
+
+            # Skip lines that are part of omn1 section
+            if in_omn1_section:
+                continue
+
+            filtered_lines.append(line)
+
+        return "\n".join(filtered_lines)
+
+    def _remove_prompt_section(self, config_text: str) -> str:
+        """
+        Remove existing [prompt] section from config.
+
+        Args:
+            config_text: Current config file content
+
+        Returns:
+            Config text with prompt section removed
+        """
+        lines = config_text.split("\n")
+        filtered_lines = []
+        in_prompt_section = False
+        in_multiline_string = False
+
+        for line in lines:
+            stripped = line.strip()
+
+            # Check if we're entering the prompt section
+            if stripped == "[prompt]":
+                in_prompt_section = True
+                continue
+
+            # Handle multi-line strings (''' or """)
+            if in_prompt_section and ("'''" in stripped or '"""' in stripped):
+                in_multiline_string = not in_multiline_string
+                continue
+
+            # Check if we're entering a different section (stop skipping)
+            if (
+                in_prompt_section
+                and not in_multiline_string
+                and stripped.startswith("[")
+            ):
+                in_prompt_section = False
+
+            # Skip lines that are part of prompt section
+            if in_prompt_section or in_multiline_string:
+                continue
+
+            filtered_lines.append(line)
+
+        return "\n".join(filtered_lines)

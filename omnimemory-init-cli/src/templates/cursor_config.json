@@ -1,0 +1,7 @@
+{
+  "omnimemory.enabled": true,
+  "omnimemory.autoMode": true,
+  "cursor.chat.systemPrompt": "You have access to persistent memory via OmniMemory.\n\nBefore responding: Check memory for relevant context.\nAfter responding: Store important information automatically.\n\nThis ensures context persists across sessions.",
+  "omnimemory.searchBeforeResponse": true,
+  "omnimemory.storeAfterResponse": true
+}

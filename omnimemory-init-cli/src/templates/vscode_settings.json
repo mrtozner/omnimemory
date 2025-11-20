@@ -1,0 +1,9 @@
+{
+  "omnimemory.enabled": true,
+  "omnimemory.autoMode": true,
+  "github.copilot.advanced": {
+    "systemPrompt": "You have access to persistent memory via OmniMemory. Before responding, check memory for relevant context. After responding, store important information."
+  },
+  "omnimemory.searchBeforeResponse": true,
+  "omnimemory.storeAfterResponse": true
+}

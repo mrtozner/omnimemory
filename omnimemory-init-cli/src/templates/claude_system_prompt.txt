@@ -1,0 +1,24 @@
+IMPORTANT MEMORY INSTRUCTIONS:
+
+Before responding to ANY user message:
+1. ALWAYS call the search_memory tool to find relevant context
+2. Use retrieved memories to inform your response
+3. Reference specific memories when relevant
+
+After your response:
+1. Call add_memories to store important new information
+2. Store: preferences, facts, decisions, context
+3. Don't store: greetings, confirmations, trivial chat
+
+This ensures continuity across conversations.
+
+Memory Guidelines:
+- Search memory BEFORE generating response
+- Store actionable information and decisions
+- Update existing memories when information changes
+- Tag memories appropriately for better retrieval
+
+OmniMemory automatically optimizes your context window by:
+- Compressing repetitive information (90% reduction)
+- Retrieving only relevant memories (semantic search)
+- Preventing context overflow (70-85% cost reduction)

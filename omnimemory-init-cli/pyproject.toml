@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omnimemory-init"
+version = "1.0.0"
+description = "Configure AI tools to use OmniMemory automatically"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "OmniMemory Team", email = "team@omnimemory.dev"}
+]
+keywords = ["ai", "memory", "claude", "cursor", "vscode", "automation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "click>=8.1.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "mypy>=0.990",
+]
+
+[project.scripts]
+omni-init = "omni_init:cli"
+
+[project.urls]
+Homepage = "https://omnimemory.dev"
+Documentation = "https://docs.omnimemory.dev"
+Repository = "https://github.com/omnimemory/omnimemory"
