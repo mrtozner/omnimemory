@@ -11,9 +11,9 @@
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue.svg)](https://github.com/mrtozner/omnimemory)
 [![Stars](https://img.shields.io/github/stars/mrtozner/omnimemory?style=social)](https://github.com/mrtozner/omnimemory)
 [![Last Commit](https://img.shields.io/github/last-commit/mrtozner/omnimemory)](https://github.com/mrtozner/omnimemory/commits/main)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/mrtozner/omnimemory/pulls)
 
-**[Quick Start](QUICK_START.md)** • **[Services](#services)** • **[Documentation](#documentation)** • **[Report Issue](https://github.com/mrtozner/omnimemory/issues)**
+**[Quick Start](QUICK_START.md)** • **[Services](#services)** • **[Report Issue](https://github.com/mrtozner/omnimemory/issues)**
 
 ---
 
@@ -499,8 +499,6 @@ Contributions are welcome! Please:
 3. Make your changes with tests
 4. Run tests: `pytest`
 5. Submit a pull request
-
-**[📖 Contributing Guidelines →](CONTRIBUTING.md)**
 
 ---
 
