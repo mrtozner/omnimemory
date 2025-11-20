@@ -248,30 +248,48 @@ Result: $0.014 instead of $0.90 per query
 
 - Python 3.9+
 - Node.js 16+ (for dashboard)
-- Redis 7+
-- PostgreSQL 15+ (optional, for some services)
-- Qdrant (optional, for vector search)
+- Docker & Docker Compose (for infrastructure)
 
-### 🐳 Docker Compose (Recommended)
+### 🐳 Docker Infrastructure (Recommended)
+
+Start infrastructure services (PostgreSQL, Redis, Qdrant) using convenience scripts:
 
 ```bash
 # Clone the repository
 git clone https://github.com/mrtozner/omnimemory.git
 cd omnimemory
 
-# Copy environment template
-cp .env.example .env
+# Start infrastructure services (auto-creates .env from template)
+./start.sh
 
-# Edit .env and configure services
-nano .env
+# Check service status
+./status.sh
 
-# Start core services
+# View logs
+./logs.sh           # All services
+./logs.sh postgres  # Specific service
+
+# Restart services
+./restart.sh
+
+# Stop services
+./stop.sh
+```
+
+**Available scripts:**
+- `start.sh` - Start Docker infrastructure (PostgreSQL, Redis, Qdrant)
+- `stop.sh` - Stop all infrastructure services
+- `restart.sh` - Restart infrastructure
+- `logs.sh` - View service logs (all or specific service)
+- `status.sh` - Check infrastructure health
+
+**Note**: These scripts only start infrastructure. Microservices must be started individually (see below).
+
+**Manual Docker commands** (if you prefer):
+```bash
+cp .env.example .env && nano .env
 docker-compose up -d
-
-# Verify services are running
-curl http://localhost:8000/health  # Embeddings
-curl http://localhost:8001/health  # Compression
-curl http://localhost:8004/health  # Metrics
+curl http://localhost:6333  # Qdrant
 ```
 
 ### 📦 Individual Services
