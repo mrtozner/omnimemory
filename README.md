@@ -279,19 +279,62 @@ cd omnimemory
 ```
 
 **Available scripts:**
-- `start.sh` - Start Docker infrastructure (PostgreSQL, Redis, Qdrant)
-- `stop.sh` - Stop all infrastructure services
+- `start.sh` - Start Docker infrastructure only (PostgreSQL, Redis, Qdrant)
+- `stop.sh` - Stop Docker infrastructure only
 - `restart.sh` - Restart infrastructure
 - `logs.sh` - View service logs (all or specific service)
 - `status.sh` - Check infrastructure health
 
-**Note**: These scripts only start infrastructure. Microservices must be started individually (see below).
+**Note**: These scripts start infrastructure only. For full system launch (infrastructure + microservices), use `./launch.sh` (see below).
 
 **Manual Docker commands** (if you prefer):
 ```bash
 cp .env.example .env && nano .env
 docker-compose up -d
 curl http://localhost:6333  # Qdrant
+```
+
+### 🚀 Full System Launch (All Services)
+
+Start everything with one command:
+
+```bash
+# Launch infrastructure + all microservices
+./launch.sh
+
+# Check status of all services
+./status-all.sh
+
+# Stop everything
+./stop-all.sh
+```
+
+**What it does:**
+- Starts Docker infrastructure (PostgreSQL, Redis, Qdrant)
+- Launches Python microservices (Embeddings, Compression, Procedural, Metrics)
+- Tracks processes in `~/.omnimemory/pids`
+- Logs to `~/.omnimemory/logs/`
+- Validates health of all services
+
+**Available commands:**
+- `./launch.sh` - Start all services (infrastructure + microservices)
+- `./status-all.sh` - Check comprehensive status with health checks
+- `./stop-all.sh` - Stop all services including microservices
+
+**Requirements:**
+- Python dependencies installed in each service directory
+- Docker infrastructure running (auto-started by launch.sh)
+
+**Useful commands:**
+```bash
+# View all logs
+tail -f ~/.omnimemory/logs/*.log
+
+# View specific service log
+tail -f ~/.omnimemory/logs/omnimemory-embeddings.log
+
+# Check what's running
+./status-all.sh
 ```
 
 ### 📦 Individual Services
