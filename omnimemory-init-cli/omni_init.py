@@ -735,5 +735,135 @@ def members(team: str, add: str, remove: str, role: str, list_members: bool):
         sys.exit(1)
 
 
+@cli.command()
+@click.option(
+    "--action",
+    type=click.Choice(
+        ["sync", "prd", "design", "tasks", "context", "patterns", "export"]
+    ),
+    default="sync",
+    help="Action to perform (default: sync all files)",
+)
+@click.option(
+    "--workspace",
+    type=click.Path(exists=True),
+    help="Workspace path (defaults to current directory)",
+)
+def memory_bank(action: str, workspace: str):
+    """Generate Memory Bank - structured project context files.
+
+    Creates /memory-bank/ directory with auto-generated documentation:
+    - prd.md: Product requirements from conversations
+    - design.md: Architecture decisions
+    - tasks.md: Development tasks and TODOs
+    - context.md: Current session context
+    - patterns.md: Learned coding patterns
+
+    Examples:
+        omni-init memory-bank               # Sync all files
+        omni-init memory-bank --action prd  # Generate only PRD
+        omni-init memory-bank --action export  # Export to GitHub Copilot format
+    """
+    try:
+        console.print(
+            Panel.fit(
+                "[bold blue]Memory Bank Generator[/bold blue]\n"
+                "[dim]Auto-generate structured project context[/dim]",
+                border_style="blue",
+            )
+        )
+
+        # Import required modules
+        omni_root = Path(__file__).parent.parent
+        mcp_server_path = omni_root / "mcp_server"
+        sys.path.insert(0, str(mcp_server_path))
+
+        from memory_bank_manager import MemoryBankManager
+
+        # Determine workspace
+        workspace_path = Path(workspace) if workspace else Path.cwd()
+        console.print(f"\n[cyan]Workspace:[/cyan] {workspace_path}")
+        console.print(f"[cyan]Action:[/cyan] {action}\n")
+
+        # Initialize Memory Bank Manager
+        manager = MemoryBankManager(
+            workspace_path=str(workspace_path),
+            session_manager=None,  # CLI mode, no session manager
+            conversation_memory=None,
+            procedural_memory=None,
+        )
+
+        # Execute action
+        import asyncio
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        if action == "sync":
+            console.print("[yellow]Generating all Memory Bank files...[/yellow]\n")
+            files = loop.run_until_complete(manager.sync_to_disk())
+
+            table = Table(title="Generated Files")
+            table.add_column("File", style="cyan")
+            table.add_column("Path", style="green")
+
+            for name, path in files.items():
+                table.add_row(name, path)
+
+            console.print(table)
+            console.print(
+                f"\n[green]✓ Generated {len(files)} files in {manager.memory_bank_dir}[/green]\n"
+            )
+
+        elif action == "prd":
+            prd_path = loop.run_until_complete(manager.generate_prd())
+            console.print(f"[green]✓ Generated:[/green] {prd_path}\n")
+
+        elif action == "design":
+            design_path = loop.run_until_complete(manager.generate_design())
+            console.print(f"[green]✓ Generated:[/green] {design_path}\n")
+
+        elif action == "tasks":
+            tasks_path = loop.run_until_complete(manager.generate_tasks())
+            console.print(f"[green]✓ Generated:[/green] {tasks_path}\n")
+
+        elif action == "context":
+            context_path = loop.run_until_complete(manager.generate_context())
+            console.print(f"[green]✓ Generated:[/green] {context_path}\n")
+
+        elif action == "patterns":
+            patterns_path = loop.run_until_complete(manager.generate_patterns())
+            console.print(f"[green]✓ Generated:[/green] {patterns_path}\n")
+
+        elif action == "export":
+            copilot_path = loop.run_until_complete(
+                manager.export_copilot_instructions()
+            )
+            console.print(
+                f"[green]✓ Exported to GitHub Copilot format:[/green] {copilot_path}\n"
+            )
+
+        loop.close()
+
+        # Show next steps
+        console.print(
+            Panel.fit(
+                f"[bold green]Memory Bank generated successfully![/bold green]\n\n"
+                f"Next steps:\n"
+                f"1. Review files in: {manager.memory_bank_dir}\n"
+                f"2. Commit to version control for team access\n"
+                f"3. AI tools will auto-load context from these files",
+                border_style="green",
+            )
+        )
+
+    except Exception as e:
+        console.print(f"[red]✗ Error: {e}[/red]")
+        import traceback
+
+        traceback.print_exc()
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     cli()

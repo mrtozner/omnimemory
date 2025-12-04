@@ -76,11 +76,13 @@ try:
     from session_manager import SessionManager
     from project_manager import ProjectManager
     from session_persistence_hook import SessionPersistenceHook
+    from memory_bank_manager import MemoryBankManager
 
     SESSION_MEMORY_ENABLED = True
 except ImportError as e:
     SESSION_MEMORY_ENABLED = False
     print(f"⚠ Session memory not available: {e}", file=sys.stderr)
+    MemoryBankManager = None
 
 # Import workspace monitor for automatic project switching
 try:
@@ -348,6 +350,7 @@ _METRICS_API = "http://localhost:8003"
 _SESSION_MANAGER: Optional[SessionManager] = None
 _PROJECT_MANAGER: Optional[ProjectManager] = None
 _PERSISTENCE_HOOK: Optional[SessionPersistenceHook] = None
+_MEMORY_BANK_MANAGER = None
 _SESSION_DB_PATH = str(Path.home() / ".omnimemory" / "dashboard.db")
 
 
@@ -557,6 +560,22 @@ def _start_session():
                     project_manager=_PROJECT_MANAGER,
                 )
                 _PERSISTENCE_HOOK.start_idle_monitoring()
+
+                # Initialize Memory Bank Manager
+                if MemoryBankManager is not None:
+                    try:
+                        global _MEMORY_BANK_MANAGER
+                        _MEMORY_BANK_MANAGER = MemoryBankManager(
+                            workspace_path=workspace_path,
+                            session_manager=_SESSION_MANAGER,
+                            db_path=_SESSION_DB_PATH,
+                        )
+                        print("✓ Memory Bank Manager initialized", file=sys.stderr)
+                    except Exception as mb_error:
+                        print(
+                            f"⚠ Memory Bank initialization failed: {mb_error}",
+                            file=sys.stderr,
+                        )
 
                 print(
                     f"✓ Session memory initialized: {session.session_id} "
@@ -10092,6 +10111,122 @@ Cost saved: ${cost_saved:.2f}
         #         health["error"] = str(e)[:200]
 
         #     return json.dumps(health, indent=2)
+
+        @self.mcp.tool()
+        async def generate_memory_bank(action: str = "sync") -> str:
+            """
+            Generate or sync Memory Bank - structured project context files
+
+            Creates /memory-bank/ directory with auto-generated documentation:
+            - prd.md: Product requirements from conversations
+            - design.md: Architecture decisions and design patterns
+            - tasks.md: Development tasks and TODOs
+            - context.md: Current session context
+            - patterns.md: Learned coding patterns and conventions
+
+            Follows GitHub Copilot Memory Bank pattern for instant AI context.
+
+            Args:
+                action: Action to perform
+                    - "sync" (default): Generate all memory bank files
+                    - "prd": Generate only prd.md
+                    - "design": Generate only design.md
+                    - "tasks": Generate only tasks.md
+                    - "context": Generate only context.md
+                    - "patterns": Generate only patterns.md
+                    - "export": Export to .github/copilot-instructions.md
+
+            Returns:
+                JSON with status, generated files, and statistics
+
+            Examples:
+                # Generate all memory bank files
+                generate_memory_bank("sync")
+
+                # Generate only PRD
+                generate_memory_bank("prd")
+
+                # Export to Copilot format
+                generate_memory_bank("export")
+            """
+            try:
+                if not _MEMORY_BANK_MANAGER:
+                    return json.dumps(
+                        {
+                            "status": "unavailable",
+                            "message": "Memory Bank Manager not initialized. Session memory must be enabled.",
+                        },
+                        indent=2,
+                    )
+
+                result = {"status": "success", "action": action, "files": {}}
+
+                if action == "sync":
+                    files = await _MEMORY_BANK_MANAGER.sync_to_disk()
+                    result["files"] = files
+                    result["message"] = f"Generated {len(files)} Memory Bank files"
+
+                elif action == "prd":
+                    prd_path = await _MEMORY_BANK_MANAGER.generate_prd()
+                    result["files"]["prd"] = prd_path
+                    result["message"] = "Generated prd.md"
+
+                elif action == "design":
+                    design_path = await _MEMORY_BANK_MANAGER.generate_design()
+                    result["files"]["design"] = design_path
+                    result["message"] = "Generated design.md"
+
+                elif action == "tasks":
+                    tasks_path = await _MEMORY_BANK_MANAGER.generate_tasks()
+                    result["files"]["tasks"] = tasks_path
+                    result["message"] = "Generated tasks.md"
+
+                elif action == "context":
+                    context_path = await _MEMORY_BANK_MANAGER.generate_context()
+                    result["files"]["context"] = context_path
+                    result["message"] = "Generated context.md"
+
+                elif action == "patterns":
+                    patterns_path = await _MEMORY_BANK_MANAGER.generate_patterns()
+                    result["files"]["patterns"] = patterns_path
+                    result["message"] = "Generated patterns.md"
+
+                elif action == "export":
+                    copilot_path = (
+                        await _MEMORY_BANK_MANAGER.export_copilot_instructions()
+                    )
+                    result["files"]["copilot"] = copilot_path
+                    result["message"] = "Exported to .github/copilot-instructions.md"
+
+                else:
+                    result["status"] = "error"
+                    result["message"] = (
+                        f"Unknown action: {action}. "
+                        f"Valid actions: sync, prd, design, tasks, context, patterns, export"
+                    )
+
+                # Add statistics
+                if _MEMORY_BANK_MANAGER.memory_bank_dir.exists():
+                    result["memory_bank_dir"] = str(
+                        _MEMORY_BANK_MANAGER.memory_bank_dir
+                    )
+                    result["statistics"] = {
+                        "total_conversations": await _MEMORY_BANK_MANAGER._count_conversations(),
+                        "total_decisions": await _MEMORY_BANK_MANAGER._count_decisions(),
+                        "total_patterns": await _MEMORY_BANK_MANAGER._count_patterns(),
+                    }
+
+                return json.dumps(result, indent=2)
+
+            except Exception as e:
+                return json.dumps(
+                    {
+                        "status": "error",
+                        "action": action,
+                        "message": f"Failed to generate Memory Bank: {str(e)}",
+                    },
+                    indent=2,
+                )
 
     def _register_resources(self):
         """Register MCP resources for progressive tool tier disclosure"""

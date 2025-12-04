@@ -1,0 +1,588 @@
+openapi: 3.1.0
+info:
+  title: OmniMemory MCP Server API
+  version: 2.0.0
+  description: |
+    Universal MCP Server for OmniMemory - provides intelligent memory management
+    for AI coding tools through the Model Context Protocol.
+
+    Features:
+    - 85-98% API cost reduction through semantic search and caching
+    - Cross-tool session portability via Memory Passport
+    - Universal compatibility (Claude, Cursor, Copilot, VS Code)
+    - Production-ready with 13 microservices
+
+  contact:
+    name: OmniMemory Support
+    url: https://github.com/yourusername/omnimemory
+
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: stdio://
+    description: MCP Server (stdio communication)
+
+tags:
+  - name: Memory Operations
+    description: Store and retrieve persistent memories
+  - name: Search Operations
+    description: Semantic and structural code search
+  - name: Session Operations
+    description: Session management and portability
+  - name: Workflow Operations
+    description: Workflow learning and prediction
+  - name: Utility Operations
+    description: Compression, stats, and health checks
+
+paths:
+  /tools/omn_store_memory:
+    post:
+      tags:
+        - Memory Operations
+      summary: Store a memory
+      description: |
+        Store a memory with automatic compression and semantic indexing.
+
+        This tool:
+        - Auto-compresses content >1000 tokens (12.1x ratio)
+        - Generates embeddings for semantic search
+        - Indexes tags for filtering
+        - Enforces scope-based access control
+
+      operationId: omn_store_memory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+                - key
+              properties:
+                content:
+                  type: string
+                  description: Memory content to store
+                  example: "JWT authentication implementation using HS256 algorithm"
+                key:
+                  type: string
+                  description: Unique retrieval key
+                  example: "auth-jwt-impl"
+                metadata:
+                  type: object
+                  description: Optional metadata
+                  properties:
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                      example: ["auth", "jwt", "security"]
+                    importance:
+                      type: number
+                      minimum: 0
+                      maximum: 1
+                      example: 0.9
+                    expiry:
+                      type: string
+                      format: date-time
+                      example: "2025-12-31T23:59:59Z"
+                    scope:
+                      type: string
+                      enum: [private, shared, public]
+                      example: "shared"
+                compress:
+                  type: boolean
+                  default: true
+                  description: Whether to auto-compress large content
+
+      responses:
+        '200':
+          description: Memory stored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memory_id:
+                    type: string
+                    format: uuid
+                    example: "550e8400-e29b-41d4-a716-446655440000"
+                  key:
+                    type: string
+                    example: "auth-jwt-impl"
+                  size_bytes:
+                    type: integer
+                    example: 1024
+                  compressed:
+                    type: boolean
+                    example: true
+                  compression_ratio:
+                    type: number
+                    example: 12.1
+                  tokens_saved:
+                    type: integer
+                    example: 950
+                  indexed:
+                    type: boolean
+                    example: true
+
+  /tools/omn_retrieve_memory:
+    post:
+      tags:
+        - Memory Operations
+      summary: Retrieve memories
+      description: |
+        Retrieve memories by exact key match or semantic search.
+
+        Search modes:
+        - **Exact**: Lookup by key (fastest)
+        - **Semantic**: Natural language query using embeddings
+        - **Filtered**: Search with tag/scope/importance filters
+
+      operationId: omn_retrieve_memory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: Semantic search query
+                  example: "how to implement JWT authentication"
+                key:
+                  type: string
+                  description: Exact key match
+                  example: "auth-jwt-impl"
+                filters:
+                  type: object
+                  properties:
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                      example: ["auth", "jwt"]
+                    scope:
+                      type: string
+                      enum: [private, shared, public]
+                    min_importance:
+                      type: number
+                      minimum: 0
+                      maximum: 1
+                      example: 0.7
+                    max_age_days:
+                      type: integer
+                      example: 30
+                limit:
+                  type: integer
+                  default: 10
+                  minimum: 1
+                  maximum: 100
+                decompress:
+                  type: boolean
+                  default: true
+
+      responses:
+        '200':
+          description: Memories retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        memory_id:
+                          type: string
+                          format: uuid
+                        key:
+                          type: string
+                        content:
+                          type: string
+                        metadata:
+                          type: object
+                        relevance_score:
+                          type: number
+                          minimum: 0
+                          maximum: 1
+                        created_at:
+                          type: string
+                          format: date-time
+                  total_found:
+                    type: integer
+                  query_time_ms:
+                    type: integer
+
+  /tools/omn_semantic_search:
+    post:
+      tags:
+        - Search Operations
+      summary: Semantic code search
+      description: |
+        Search codebase using semantic embeddings and tri-index architecture.
+
+        Tri-Index combines:
+        - **Dense**: Vector similarity (embeddings)
+        - **Sparse**: BM25 term matching
+        - **Structural**: AST facts and knowledge graph
+
+        Results are fused using RRF (Reciprocal Rank Fusion) and reranked
+        with witness selection for >90% accuracy.
+
+      operationId: omn_semantic_search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  description: Natural language search query
+                  example: "find all authentication middleware"
+                scope:
+                  type: string
+                  description: Directory to search
+                  example: "src/"
+                limit:
+                  type: integer
+                  default: 10
+                  minimum: 1
+                  maximum: 50
+                min_relevance:
+                  type: number
+                  default: 0.7
+                  minimum: 0
+                  maximum: 1
+                filters:
+                  type: object
+                  properties:
+                    file_types:
+                      type: array
+                      items:
+                        type: string
+                      example: [".py", ".ts"]
+                    exclude_paths:
+                      type: array
+                      items:
+                        type: string
+                      example: ["node_modules/", "venv/"]
+                    recency_weight:
+                      type: number
+                      minimum: 0
+                      maximum: 1
+                      description: Boost recently modified files
+
+      responses:
+        '200':
+          description: Search results with API prevention metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        file_path:
+                          type: string
+                          example: "src/middleware/auth.py"
+                        relevance_score:
+                          type: number
+                          example: 0.92
+                        excerpt:
+                          type: string
+                          example: "JWT authentication middleware..."
+                        line_range:
+                          type: array
+                          items:
+                            type: integer
+                          example: [10, 50]
+                        last_modified:
+                          type: string
+                          format: date-time
+                  search_time_ms:
+                    type: integer
+                    example: 125
+                  cache_hit:
+                    type: boolean
+                  baseline_tokens:
+                    type: integer
+                    example: 60000
+                    description: Tokens without OmniMemory
+                  actual_tokens:
+                    type: integer
+                    example: 900
+                    description: Tokens with OmniMemory
+                  prevention_percentage:
+                    type: number
+                    example: 98.5
+                    description: Percentage of API calls prevented
+
+  /tools/omn_create_session:
+    post:
+      tags:
+        - Session Operations
+      summary: Create new session
+      description: |
+        Create a new session for tracking context across interactions.
+
+        Sessions include:
+        - Files accessed with importance scores
+        - Recent searches
+        - Decisions made
+        - Workflow state
+
+        Sessions can be exported as Memory Passports for cross-tool portability.
+
+      operationId: omn_create_session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tool_id:
+                  type: string
+                  description: Tool identifier (auto-detected if not provided)
+                  example: "claude-code"
+                workspace_path:
+                  type: string
+                  description: Absolute path to workspace
+                  example: "/Users/user/projects/myapp"
+                user_id:
+                  type: string
+                  description: Optional user identifier
+                restore_from:
+                  type: string
+                  description: Optional session_id to restore from
+
+      responses:
+        '200':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id:
+                    type: string
+                    example: "sess_abc123def456"
+                  project_id:
+                    type: string
+                    example: "proj_xyz789"
+                  created_at:
+                    type: string
+                    format: date-time
+                  memory_passport:
+                    type: object
+                    properties:
+                      export_url:
+                        type: string
+                        example: "omnimemory://export/sess_abc123def456"
+                      qr_code:
+                        type: string
+                        description: Base64 QR code for mobile transfer
+
+  /tools/omn_export_session:
+    post:
+      tags:
+        - Session Operations
+      summary: Export session as Memory Passport
+      description: |
+        Export session as portable Memory Passport JSON for cross-tool migration.
+
+        Memory Passport includes:
+        - Session context (files, searches, decisions)
+        - Compressed representation (12.1x compression)
+        - HMAC signature for validation
+        - Optional QR code for mobile transfer
+
+        Use case: Switch from Claude to Cursor with full context preserved.
+
+      operationId: omn_export_session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session_id:
+                  type: string
+                  description: Session to export (current if not provided)
+                generate_qr:
+                  type: boolean
+                  default: false
+                  description: Generate QR code for mobile transfer
+
+      responses:
+        '200':
+          description: Memory Passport generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    example: "2.0"
+                  session_id:
+                    type: string
+                  exported_at:
+                    type: string
+                    format: date-time
+                  exported_by_tool:
+                    type: string
+                  project_id:
+                    type: string
+                  workspace_path:
+                    type: string
+                  context:
+                    type: object
+                  compressed_context:
+                    type: string
+                    description: Base64 encoded compressed context
+                  compression_ratio:
+                    type: number
+                  metadata:
+                    type: object
+                  signature:
+                    type: string
+                    description: HMAC-SHA256 signature
+                  qr_code:
+                    type: string
+                    description: Base64 QR code (if requested)
+
+  /tools/omn_restore_session:
+    post:
+      tags:
+        - Session Operations
+      summary: Restore session
+      description: |
+        Restore session from ID or Memory Passport.
+
+        Supports:
+        - Same-tool restoration (instant)
+        - Cross-tool migration (<2s)
+        - Context decompression
+        - Migration logging
+
+      operationId: omn_restore_session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session_id:
+                  type: string
+                  description: Session ID to restore
+                passport:
+                  type: string
+                  description: Memory Passport JSON
+                tool_id:
+                  type: string
+                  description: Tool requesting restoration
+
+      responses:
+        '200':
+          description: Session restored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id:
+                    type: string
+                  context:
+                    type: object
+                  restored_at:
+                    type: string
+                    format: date-time
+                  original_tool:
+                    type: string
+                  migration:
+                    type: boolean
+
+components:
+  schemas:
+    Memory:
+      type: object
+      properties:
+        memory_id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        content:
+          type: string
+        metadata:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        scope:
+          type: string
+          enum: [private, shared, public]
+
+    SearchResult:
+      type: object
+      properties:
+        file_path:
+          type: string
+        relevance_score:
+          type: number
+        excerpt:
+          type: string
+        line_range:
+          type: array
+          items:
+            type: integer
+        last_modified:
+          type: string
+          format: date-time
+
+    Session:
+      type: object
+      properties:
+        session_id:
+          type: string
+        tool_id:
+          type: string
+        workspace_path:
+          type: string
+        project_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        context:
+          type: object
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: |
+        API key for authentication.
+
+        Format: omn_{key_id}_{secret}
+
+        Generate with:
+        ```
+        python -c "import secrets; print(f'omn_{secrets.token_urlsafe(32)}')"
+        ```
+
+security:
+  - ApiKeyAuth: []
